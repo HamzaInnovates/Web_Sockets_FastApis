@@ -1,0 +1,227 @@
+{% extends "base.html" %}
+
+
+{% block title %} 
+  <title>Chat Application</title>
+{% endblock %} 
+
+{% block content %} 
+
+<style>
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #1a1a1a;
+  color: #ffffff;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.typing-text {
+  font-size: 32px;
+  font-weight: bold;
+  text-align: center;
+  margin: 20px 0;
+  color: #7289da;
+  min-height: 48px;
+}
+
+.typing-text::after {
+  content: "|";
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.open-button {
+  background-color: #7289da;
+  color: white;
+  padding: 16px 20px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: fixed;
+  bottom: 160px;
+  left: 50px;
+  width: 280px;
+  font-size: 16px;
+  font-weight: bold;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+#texta {
+  margin: 15px auto;
+  height: 500px;
+  width: 600px;
+  background-color: #2c2f33;
+  color: #ffffff;
+  border: 1px solid #7289da;
+  border-radius: 10px;
+  padding: 15px;
+  font-size: 14px;
+  line-height: 1.6;
+  resize: none;
+  display: block;
+}
+
+.chat-popup {
+  display: none;
+  position: fixed;
+  bottom: 200px;
+  left: 15px;
+  border-radius: 15px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  z-index: 9;
+}
+
+.form-container {
+  max-width: 350px;
+  padding: 20px;
+  background-color: #2c2f33;
+  border-radius: 15px;
+}
+
+.form-container textarea {
+  width: 100%;
+  padding: 15px;
+  margin: 10px 0;
+  border: 1px solid #7289da;
+  border-radius: 8px;
+  background-color: #23272a;
+  color: #ffffff;
+  resize: none;
+  min-height: 200px;
+  font-size: 14px;
+}
+
+.form-container textarea:focus {
+  background-color: #23272a;
+  outline: none;
+  border-color: #5865f2;
+  box-shadow: 0 0 5px rgba(114, 137, 218, 0.5);
+}
+
+.form-container .btn {
+  background-color: #7289da;
+  color: white;
+  padding: 16px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  width: 100%;
+  margin-bottom: 10px;
+  font-size: 16px;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.form-container .cancel {
+  background-color: #f04747;
+}
+
+.form-container .btn:hover, .open-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.form-container h1 {
+  color: #ffffff;
+  margin-bottom: 15px;
+  font-size: 24px;
+}
+
+.form-container label {
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.messages-title {
+  text-align: center;
+  margin: 30px 0;
+  color: #ffffff;
+  font-size: 24px;
+}
+
+</style>
+
+<div>
+<div class="typing-text"></div>
+<h3 class="messages-title">Your Messages</h3>
+<textarea placeholder="Your conversation will appear here..." id="texta" rows="33" cols="20" readonly ></textarea>
+
+<button class="open-button" onclick="openForm()">Open Chat</button>
+
+<div class="chat-popup" id="myForm">
+  <form class="form-container">
+    <h1>Chat</h1>
+
+    <label for="msg"><b>Message</b></label>
+    <textarea placeholder="Type your message here..." id="msg" name="msg" required></textarea>
+
+    <button type="button" class="btn send" id="send" onclick="sendt()">Send Message</button>
+    <button type="button" class="btn cancel" onclick="closeForm()">Close Chat</button>
+  </form>
+</div>
+</div>
+
+<script>
+
+var ws = new WebSocket("ws://localhost:8000/websocket");
+ws.onmessage = function(event) {
+  var messages = document.getElementById('texta')
+  messages.value+="Received: "+event.data+"\n";
+};
+
+function sendt(){
+   var v=document.getElementById("texta");
+   var msg=document.getElementById("msg").value;
+   ws.send(msg);
+   var msg="Sent: "+msg+"\n";
+   v.value+=msg;
+   document.getElementById("msg").value = "";  
+}
+
+function openForm() {
+  document.getElementById("myForm").style.display = "block";
+}
+
+function closeForm() {
+  document.getElementById("myForm").style.display = "none";
+}
+
+// Typing animation
+const text = "Real-Time Chat App";
+const typingText = document.querySelector(".typing-text");
+let index = 0;
+let isDeleting = false;
+let typingDelay = 200;
+let erasingDelay = 100;
+let newTextDelay = 2000;
+
+function type() {
+  const currentText = text.substring(0, index);
+  typingText.textContent = currentText;
+
+  if (!isDeleting && index < text.length) {
+    index++;
+    setTimeout(type, typingDelay);
+  } else if (isDeleting && index > 0) {
+    index--;
+    setTimeout(type, erasingDelay);
+  } else {
+    isDeleting = !isDeleting;
+    setTimeout(type, isDeleting ? erasingDelay : newTextDelay);
+  }
+}
+
+type();
+</script>
+{% endblock %} 
