@@ -56,7 +56,7 @@ body {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-#texta {
+#chats {
   margin: 15px auto;
   height: 500px;
   width: 600px;
@@ -155,7 +155,7 @@ body {
 <div>
 <div class="typing-text"></div>
 <h3 class="messages-title">Your Messages</h3>
-<textarea placeholder="Your conversation will appear here..." id="texta" rows="33" cols="20" readonly ></textarea>
+<textarea placeholder="Your conversation will appear here..." id="chats" rows="33" cols="20" readonly ></textarea>
 
 <button class="open-button" onclick="openForm()">Open Chat</button>
 
@@ -176,12 +176,12 @@ body {
 
 var ws = new WebSocket("ws://localhost:8000/websocket");
 ws.onmessage = function(event) {
-  var messages = document.getElementById('texta')
+  var messages = document.getElementById('chats')
   messages.value+="Received: "+event.data+"\n";
 };
 
 function sendt(){
-   var v=document.getElementById("texta");
+   var v=document.getElementById("chats");
    var msg=document.getElementById("msg").value;
    ws.send(msg);
    var msg="Sent: "+msg+"\n";
